@@ -1,0 +1,34 @@
+body {
+	/*margin: 0;*/
+	font-family: Monaco, Menlo, "Ubuntu Mono", Consolas, source-code-pro, monospace;
+}
+
+.editor {
+	background-color: lightgray;
+	padding: 25px;
+	font-size: 20px;
+}
+
+/* from https://til.hashrocket.com/posts/a2cdb1ac8e-create-a-placeholder-for-content-editable-divs */
+.editor:empty:not(:focus):before {
+  content: attr(_title);
+  color:#888888;
+}
+
+#midbar {
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+
+.w:hover {
+	background-color:gray;
+}
+
+/* Letters that are unused in the other box */
+.l0.lu {
+	color:#ff0000;
+}
+
+.l1.lu {
+	color:#0051ff;
+}
