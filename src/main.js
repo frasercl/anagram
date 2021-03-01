@@ -1,12 +1,13 @@
 import * as HE from "html-entities";
 import * as util from "./util.js";
-const NBSP = "\u00A0";
-const DOWN = "\u25BC";
-const UP = "\u25B2";
+import updateDiffBoxes from "./diffboxes.js";
 
-const wordJoiners = ["'", "-"];
+const NBSP = "\u00A0";
+
+const WORD_JOINERS = ["'", "-", "."];
 
 const editors = document.getElementsByClassName("editor");
+
 let editorContents = ["", ""];
 
 let e0Map, e1Map, diffMap;
@@ -45,12 +46,14 @@ function highlightLetters(nodes, letters) {
 
 function computeDiffMap(m1, m2) {
 	const join = {...m1, ...m2};
-	const diff = {};
+	const diffMap = {};
 	for(const l in join) {
-		c1 = m1[l] || 0;
-		c2 = m2[l] || 0;
-		diff[l] = m1 - m2;
+		const c1 = m1[l] || 0;
+		const c2 = m2[l] || 0;
+		const diff = c1 - c2;
+		if(diff) diffMap[l] = diff;
 	}
+	return diffMap;
 }
 
 function editorOnInput() {
@@ -62,10 +65,11 @@ function editorOnInput() {
 	for (const [i, c] of charArray.entries()) {
 		const cLast = charArray[i - 1];
 		const cNext = charArray[i + 1];
-		if (util.isLetter(c)) {
+		const contentEnclosed = !util.isWhitespace(cLast) && !util.isWhitespace(cNext);
+		if(util.isLetter(c) || util.isNumber(c)) {
 			newHTML += `<span class="l${editorID}">${HE.encode(c)}</span>`;
-		} else if (c === NBSP && cLast === NBSP && cNext !== undefined) {
-			//Deal with &nbsp; weirdness
+		} else if(c === NBSP && cNext !== undefined && (cLast === NBSP || contentEnclosed)) {
+			//This ludicrous boolean expression attempts to deal with the arcane behavior of &nbsp;
 			newHTML += " ";
 		} else {
 			newHTML += HE.encode(c);
@@ -81,6 +85,8 @@ function editorOnInput() {
 
 	highlightLetters(document.getElementsByClassName("l0"), e1Map);
 	highlightLetters(document.getElementsByClassName("l1"), e0Map);
+
+	updateDiffBoxes(computeDiffMap(e0Map, e1Map));
 }
 
 for(const e of editors) {

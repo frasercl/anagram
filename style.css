@@ -3,6 +3,10 @@ body {
 	font-family: Monaco, Menlo, "Ubuntu Mono", Consolas, source-code-pro, monospace;
 }
 
+h2 {
+	margin-left: 20px;
+}
+
 .editor {
 	background-color: lightgray;
 	padding: 25px;
@@ -11,13 +15,31 @@ body {
 
 /* from https://til.hashrocket.com/posts/a2cdb1ac8e-create-a-placeholder-for-content-editable-divs */
 .editor:empty:not(:focus):before {
-  content: attr(_title);
-  color:#888888;
+	content: attr(_title);
+	color:#888888;
 }
 
 #midbar {
-	padding-top: 2px;
-	padding-bottom: 2px;
+	padding: 8px 0px;
+	line-height: 31px;
+}
+
+.db {
+	line-height: normal;
+	display: inline-block;
+	padding: 3px 0px;
+	margin-right: 3px;
+	font-size: 20px;
+	background-color: #d0d0d0;
+}
+
+.db > span {
+	margin-right: 7px;
+}
+
+.db-char {
+	background-color: rgba(128, 128, 128, 0.7);
+	padding: 3px 7px;
 }
 
 .w:hover {

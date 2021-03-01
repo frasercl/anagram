@@ -15,7 +15,7 @@ export function getCaretIndex(element) {
 	return position;
 }
 
-//Recursion? In MY textbox?
+//Recursion? In MY textbox? It's more likely than you think
 //adapted from https://stackoverflow.com/questions/6249095/how-to-set-caretcursor-position-in-contenteditable-element-div
 //	and https://www.javascriptcookbook.com/article/traversing-dom-subtrees-with-a-recursive-walk-the-dom-function/
 function moveRangeToIndex(node, index, range) {
@@ -52,7 +52,6 @@ export function stripHTMLTags(str) {
 	return str.replace(/(<([^>]+)>)/gi, "");
 }
 
-//TODO: as of writing, this is unused. Keep it or nah?
 export function isWhitespace(char) {
 	return /\s/.test(char);
 }
@@ -60,4 +59,8 @@ export function isWhitespace(char) {
 //from https://coderrocketfuel.com/article/how-to-check-if-a-character-is-a-letter-using-javascript
 export function isLetter(char) {
 	return char.toLowerCase() != char.toUpperCase();
+}
+
+export function isNumber(char) {
+	return !isNaN(parseInt(char, 10));
 }
