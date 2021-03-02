@@ -1,6 +1,6 @@
 import * as HE from "html-entities";
 import * as util from "./util.js";
-import updateDiffBoxes from "./diffboxes.js";
+import {updateDiffboxes, setMessage} from "./diffboxes.js";
 
 const NBSP = "\u00A0";
 
@@ -86,7 +86,12 @@ function editorOnInput() {
 	highlightLetters(document.getElementsByClassName("l0"), e1Map);
 	highlightLetters(document.getElementsByClassName("l1"), e0Map);
 
-	updateDiffBoxes(computeDiffMap(e0Map, e1Map));
+	const diffMap = computeDiffMap(e0Map, e1Map);
+	if(Object.keys(diffMap).length === 0) {
+		setMessage(editorContents[0].length === 0);
+	} else {
+		updateDiffboxes(diffMap);
+	}
 }
 
 for(const e of editors) {

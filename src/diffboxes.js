@@ -9,6 +9,55 @@ const DOWN = "\u25BC";
 const UP = "\u25B2";
 
 const midbar = document.getElementById("midbar");
+const dbContainer = document.getElementById("diffbox-container");
+const sortOptions = document.getElementsByClassName("db-sort-option");
+
+let selectedSort = "default";
+let currentMap = {};
+
+const sorters = {
+	"default": function(a, b) {
+		return 1;
+	},
+	"number": function(a, b) {
+		return b[1] - a[1];
+	},
+	"alphabetical": function(a, b) {
+		if(a[0] < b[0]) {
+			return -1;
+		} else if(a[0] > b[0]) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+}
+
+function onSortOptionClick(e) {
+	e.stopPropagation();
+	e.preventDefault();
+
+	if(this.classList.contains("db-sort-selected")) return;
+	document.getElementsByClassName("db-sort-selected")[0].classList.remove("db-sort-selected");
+	this.classList.add("db-sort-selected");
+
+	selectedSort = this.textContent;
+
+	dbContainer.innerHTML = "";
+	updateDiffboxes(currentMap);
+}
+
+for(const so of sortOptions) {
+	so.addEventListener("click", onSortOptionClick);
+}
+
+document.getElementById("diffbox-sort").addEventListener("click", function() {
+	if(this.hasAttribute("class")) {
+		this.removeAttribute("class");
+	} else {
+		this.classList.add("holdopen");
+	}
+});
 
 function getDiffBoxChar(el) {
 	return HE.decode(el.children[0].textContent);
@@ -43,7 +92,7 @@ function createDiffBox(char, val) {
 
 	const charEl = document.createElement("span");
 	charEl.className = "db-char";
-	charEl.textContent = char.toString();
+	charEl.textContent = HE.encode(char.toString());
 	boxEl.appendChild(charEl);
 
 	const arrowEl = document.createElement("span");
@@ -59,34 +108,50 @@ function createDiffBox(char, val) {
 }
 
 //Preserves order of existing boxes
-export default function updateDiffboxes(map) {
+//Assumes boxes are sorted like selected algorithm expects
+//TODO: clean up around here, geez! You've made a mess.
+export function updateDiffboxes(map) {
+	currentMap = map;
+
+	if(midbar.hasAttribute("class")) {
+		midbar.removeAttribute("class");
+	}
+
 	let elMap = {};
-	for(const el of midbar.children) {
+	for(const el of dbContainer.children) {
 		elMap[getDiffBoxChar(el)] = getDiffBoxVal(el);
 	}
 	
-	let node = midbar.firstElementChild;
-	//TODO: consider sortable/sorted array
-	for(const c in {...elMap, ...map}) {
+	let node = dbContainer.firstElementChild;
+	let allMap = Object.entries({...elMap, ...map}).sort(sorters[selectedSort]);
+	for(const [c, n] of allMap) {
 		if(node) { //In the middle of node list
 			if(getDiffBoxChar(node) === c) { //Looking at the right box
 				const nodeVal = getDiffBoxVal(node);
 				let nextNode = node.nextElementSibling;
 				if (nodeVal !== map[c]) {
 					if (map[c]) {
-						setDiffBoxVal(node, map[c]);
+						setDiffBoxVal(node, n);
 					} else {
-						midbar.removeChild(node);
+						dbContainer.removeChild(node);
 					}
 				}
 				node = nextNode;
 			} else { //Create box
-				const newNode = createDiffBox(c, map[c]);
-				midbar.insertBefore(newNode, node);
+				const newNode = createDiffBox(c, n);
+				dbContainer.insertBefore(newNode, node);
 			}
 		} else { //At the end of node list
-			const newNode = createDiffBox(c, map[c]);
-			midbar.appendChild(newNode);
+			const newNode = createDiffBox(c, n);
+			dbContainer.appendChild(newNode);
 		}
+	}
+}
+
+export function setMessage(empty) {
+	if(empty) {
+		midbar.className = "msg msg-empty";
+	} else {
+		midbar.className = "msg msg-anagram";
 	}
 }
