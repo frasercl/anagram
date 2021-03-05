@@ -1,25 +1,22 @@
 import * as HE from "html-entities";
 import * as util from "./util.js";
-import {updateDiffboxes, setMessage} from "./diffboxes.js";
+import {updateDiffBoxes, setMessage} from "./diffboxes.js";
 
 const NBSP = "\u00A0";
-
 const WORD_JOINERS = ["'", "-", "."];
 
 const editors = document.getElementsByClassName("editor");
 
 let editorContents = ["", ""];
 
-let e0Map, e1Map, diffMap;
+//Many things want this map, so it gets an export
+//WARNING: this is a bit of cyclic import! I'm doing it HERE ONLY.
+//TODO: take care of this
+export let g_currentDiffMap = {};
 
+//pre-condition: string contains only countable characters
 function countLetters(string) {
-	const chars = string.toLowerCase().split("");
-	let letters = [];
-	for(const c of chars) {
-		if(util.isLetter(c)) {
-			letters.push(c);
-		}
-	}
+	const letters = string.toLowerCase().split("");
 
 	let letterMap = {};
 	for(const l of letters) {
@@ -29,6 +26,7 @@ function countLetters(string) {
 			letterMap[l] = 1;
 		}
 	}
+
 	return letterMap;
 }
 
@@ -44,29 +42,32 @@ function highlightLetters(nodes, letters) {
 	}
 }
 
-function computeDiffMap(m1, m2) {
+function computeDiffMap(m1, m2, keepValue = false) {
 	const join = {...m1, ...m2};
-	const diffMap = {};
+	let diffMap = {};
 	for(const l in join) {
 		const c1 = m1[l] || 0;
 		const c2 = m2[l] || 0;
 		const diff = c1 - c2;
-		if(diff) diffMap[l] = diff;
+		if(diff) diffMap[l] = keepValue ? c1 : diff;
 	}
 	return diffMap;
 }
 
+//TODO: boy, this whole place really has got to be looked at.
 function editorOnInput() {
 	const editorID = parseInt(this.getAttribute("_editor"));
-	let content = HE.decode(util.stripHTMLTags(this.innerHTML));
-	editorContents[editorID] = content;
+	let content = HE.decode(this.textContent);
+	editorContents[editorID] = "";
 	const charArray = content.split("");
+	//TODO: the following is terrible and must be replaced.
 	let newHTML = "";
 	for (const [i, c] of charArray.entries()) {
 		const cLast = charArray[i - 1];
 		const cNext = charArray[i + 1];
 		const contentEnclosed = !util.isWhitespace(cLast) && !util.isWhitespace(cNext);
 		if(util.isLetter(c) || util.isNumber(c)) {
+			editorContents[editorID] += c;
 			newHTML += `<span class="l${editorID}">${HE.encode(c)}</span>`;
 		} else if(c === NBSP && cNext !== undefined && (cLast === NBSP || contentEnclosed)) {
 			//This ludicrous boolean expression attempts to deal with the arcane behavior of &nbsp;
@@ -80,17 +81,23 @@ function editorOnInput() {
 	this.innerHTML = newHTML;
 	util.setCaretIndex(this, caretIndex);
 
-	e0Map = countLetters(editorContents[0]);
-	e1Map = countLetters(editorContents[1]);
-
+	const e0Map = countLetters(editorContents[0]);
+	const e1Map = countLetters(editorContents[1]);
+	//A: do above need to be globals?
+	//B: do the below pass by reference and do weird stuff to data?
 	highlightLetters(document.getElementsByClassName("l0"), e1Map);
 	highlightLetters(document.getElementsByClassName("l1"), e0Map);
 
-	const diffMap = computeDiffMap(e0Map, e1Map);
-	if(Object.keys(diffMap).length === 0) {
+	const newDiffMap = computeDiffMap(e0Map, e1Map);
+	let changeMap = computeDiffMap(newDiffMap, g_currentDiffMap, true);
+	g_currentDiffMap = newDiffMap;
+	
+	if(Object.keys(changeMap).length > 0) {
+		updateDiffBoxes(g_currentDiffMap, changeMap);
+	}
+
+	if (Object.keys(newDiffMap).length === 0) {
 		setMessage(editorContents[0].length === 0);
-	} else {
-		updateDiffboxes(diffMap);
 	}
 }
 

@@ -48,6 +48,7 @@ export function setCaretIndex(node, index) {
 
 //from https://css-tricks.com/snippets/javascript/strip-html-tags-in-javascript/
 //TODO: get to know this regex better
+//TODO also: do we need this? Or is it better to stick to textContent?
 export function stripHTMLTags(str) {
 	return str.replace(/(<([^>]+)>)/gi, "");
 }

@@ -16,7 +16,7 @@ h2 {
 /* from https://til.hashrocket.com/posts/a2cdb1ac8e-create-a-placeholder-for-content-editable-divs */
 .editor:empty:not(:focus):before {
 	content: attr(_title);
-	color:#888888;
+	color: #888888;
 	pointer-events: none;
 }
 

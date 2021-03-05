@@ -2,36 +2,59 @@ import * as HE from "html-entities";
 
 //Letter count where diffboxes reach max color
 const DIFF_MAX_COLOR = 10;
+//Target color codes for min and max values
 const DIFF_TARGET_BLANK = [0xd0, 0xd0, 0xd0];
 const DIFF_TARGET = [[0xff, 0x00, 0x00], [0x00, 0x51, 0xff]];
 
 const DOWN = "\u25BC";
 const UP = "\u25B2";
 
-const midbar = document.getElementById("midbar");
-const dbContainer = document.getElementById("diffbox-container");
-const sortOptions = document.getElementsByClassName("db-sort-option");
+const midbarEl = document.getElementById("midbar");
+const dbContainerEl = document.getElementById("diffbox-container");
+const sortOptionEls = document.getElementsByClassName("db-sort-option");
+
+//SORTING FUNCTIONS////////////////////////////////////////
 
 let selectedSort = "default";
-let currentMap = {};
+let lastMap = {};
+let boxElements = {};
 
 const sorters = {
-	"default": function(a, b) {
-		return 1;
-	},
-	"number": function(a, b) {
-		return b[1] - a[1];
-	},
-	"alphabetical": function(a, b) {
-		if(a[0] < b[0]) {
-			return -1;
-		} else if(a[0] > b[0]) {
+	"default": {
+		"func": function(a, b) {
 			return 1;
-		} else {
-			return 0;
-		}
+		},
+		"unstable": false
+	},
+	"number": {
+		"func": function(a, b) {
+			return b[1] - a[1];
+		},
+		"unstable": true
+	},
+	"alphabetical": {
+		"func": function(a, b) {
+			if(a[0] < b[0]) {
+				return -1;
+			} else if(a[0] > b[0]) {
+				return 1;
+			} else {
+				return 0;
+			}
+		},
+		"unstable": false
 	}
 }
+
+function sortList(arr) {
+	return arr.sort(sorters[selectedSort].func);
+}
+
+function sortMap(map) {
+	return sortList(Object.entries(map));
+}
+
+//SORTING MENU/////////////////////////////////////////////
 
 function onSortOptionClick(e) {
 	e.stopPropagation();
@@ -43,11 +66,10 @@ function onSortOptionClick(e) {
 
 	selectedSort = this.textContent;
 
-	dbContainer.innerHTML = "";
-	updateDiffboxes(currentMap);
+	resortBoxes();
 }
 
-for(const so of sortOptions) {
+for(const so of sortOptionEls) {
 	so.addEventListener("click", onSortOptionClick);
 }
 
@@ -59,16 +81,18 @@ document.getElementById("diffbox-sort").addEventListener("click", function() {
 	}
 });
 
-function getDiffBoxChar(el) {
-	return HE.decode(el.children[0].textContent);
+//BOX MANIPULATORS/////////////////////////////////////////
+
+function resortBoxes() {
+	const sortedList = sortMap(lastMap);
+	let frag = document.createDocumentFragment();
+	for(const [char] of sortedList) {
+		frag.appendChild(boxElements[char]);
+	}
+	dbContainerEl.appendChild(frag);
 }
 
-function getDiffBoxVal(el) {
-	const sign = el.children[1].textContent === UP ? -1 : 1
-	return parseInt(el.children[2].textContent) * sign;
-}
-
-function computeDiffboxColor(val) {
+function computeDiffBoxColor(val) {
 	const targetEditor = val < 0 ? 1 : 0;
 	const mult = 1 / DIFF_MAX_COLOR * Math.min(Math.abs(val), DIFF_MAX_COLOR);
 	let result = "#";
@@ -83,7 +107,7 @@ function computeDiffboxColor(val) {
 function setDiffBoxVal(el, val) {
 	el.children[1].textContent = val < 0 ? UP : DOWN;
 	el.children[2].textContent = Math.abs(val);
-	el.style.backgroundColor = computeDiffboxColor(val);
+	el.style.backgroundColor = computeDiffBoxColor(val);
 }
 
 function createDiffBox(char, val) {
@@ -107,51 +131,63 @@ function createDiffBox(char, val) {
 	return boxEl;
 }
 
-//Preserves order of existing boxes
-//Assumes boxes are sorted like selected algorithm expects
-//TODO: clean up around here, geez! You've made a mess.
-export function updateDiffboxes(map) {
-	currentMap = map;
+function insertBoxAfterChar(char, el) {
+	if (char === null) {
+		dbContainerEl.insertAdjacentElement("afterbegin", el);
+	} else {
+		boxElements[char].insertAdjacentElement("afterend", el);
+	}
+}
 
-	if(midbar.hasAttribute("class")) {
-		midbar.removeAttribute("class");
+//BIG HONKIN' FANCY UPDATE FUNCTION////////////////////////
+
+export function updateDiffBoxes(diffMap, changeMap) {
+	//Remove message from midbar, if there
+	if (midbarEl.hasAttribute("class")) {
+		midbarEl.removeAttribute("class");
 	}
 
-	let elMap = {};
-	for(const el of dbContainer.children) {
-		elMap[getDiffBoxChar(el)] = getDiffBoxVal(el);
-	}
-	
-	let node = dbContainer.firstElementChild;
-	let allMap = Object.entries({...elMap, ...map}).sort(sorters[selectedSort]);
-	for(const [c, n] of allMap) {
-		if(node) { //In the middle of node list
-			if(getDiffBoxChar(node) === c) { //Looking at the right box
-				const nodeVal = getDiffBoxVal(node);
-				let nextNode = node.nextElementSibling;
-				if (nodeVal !== map[c]) {
-					if (map[c]) {
-						setDiffBoxVal(node, n);
-					} else {
-						dbContainer.removeChild(node);
-					}
-				}
-				node = nextNode;
-			} else { //Create box
-				const newNode = createDiffBox(c, n);
-				dbContainer.insertBefore(newNode, node);
-			}
-		} else { //At the end of node list
-			const newNode = createDiffBox(c, n);
-			dbContainer.appendChild(newNode);
+	//First pass: add, remove, update contents where changed
+	let statusList = [];
+	for(const char in changeMap) {
+		if(changeMap[char] === 0) { //Remove an element
+			dbContainerEl.removeChild(boxElements[char]);
+		} else if(boxElements.hasOwnProperty(char)) { //Update an element
+			setDiffBoxVal(boxElements[char], diffMap[char]);
+			const notInContainer = boxElements[char].parentNode !== dbContainerEl;
+			statusList.push([char, diffMap[char], notInContainer]);
+		} else { //Add an element
+			boxElements[char] = createDiffBox(char, diffMap[char]);
+			statusList.push([char, diffMap[char], true]);
 		}
 	}
+
+	//Now to sort
+	sortList(statusList);
+	let sortedCharList = sortMap(diffMap);
+
+	//Second pass: set position of changed els where necessary
+	let statusIndex = 0;
+	let lastChar = null;
+	for(const [c] of sortedCharList) {
+		if(statusList[statusIndex] === undefined) break;
+		if(statusList[statusIndex][0] === c) { //This is an updated element
+			if(statusList[statusIndex][2] || sorters[selectedSort].unstable) {
+				//El position needs setting
+				insertBoxAfterChar(lastChar, boxElements[c]);
+			}
+			statusIndex++;
+		}
+		lastChar = c;
+	}
+
+	lastMap = diffMap;
 }
 
 export function setMessage(empty) {
 	if(empty) {
-		midbar.className = "msg msg-empty";
+		midbarEl.className = "msg msg-empty";
 	} else {
-		midbar.className = "msg msg-anagram";
+		midbarEl.className = "msg msg-anagram";
 	}
 }
