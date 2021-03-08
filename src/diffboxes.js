@@ -83,6 +83,8 @@ document.getElementById("diffbox-sort").addEventListener("click", function() {
 
 //BOX MANIPULATORS/////////////////////////////////////////
 
+let colorSwapQueue = [];
+
 function resortBoxes() {
 	const sortedList = sortMap(lastMap);
 	let frag = document.createDocumentFragment();
@@ -96,7 +98,7 @@ function computeDiffBoxColor(val) {
 	const targetEditor = val < 0 ? 1 : 0;
 	const mult = 1 / DIFF_MAX_COLOR * Math.min(Math.abs(val), DIFF_MAX_COLOR);
 	let result = "#";
-	for (const [i, b] of DIFF_TARGET_BLANK.entries()) {
+	for(const [i, b] of DIFF_TARGET_BLANK.entries()) {
 		const chanRange = DIFF_TARGET[targetEditor][i] - b;
 		const chanVal = b + chanRange * mult;
 		result += Math.round(chanVal).toString(16).padStart(2, "0");
@@ -104,10 +106,22 @@ function computeDiffBoxColor(val) {
 	return result;
 }
 
-function setDiffBoxVal(el, val) {
+function swapQueuedBoxColors() {
+	for(const [el, color] of colorSwapQueue) {
+		el.style.backgroundColor = color;
+	}
+	colorSwapQueue = [];
+}
+
+function setDiffBoxVal(el, val, queueColor = false) {
 	el.children[1].textContent = val < 0 ? UP : DOWN;
 	el.children[2].textContent = Math.abs(val);
-	el.style.backgroundColor = computeDiffBoxColor(val);
+	const elColor = computeDiffBoxColor(val);
+	if(queueColor) {
+		colorSwapQueue.push([el, elColor]);
+	} else {
+		el.style.backgroundColor = elColor;
+	}
 }
 
 function createDiffBox(char, val) {
@@ -148,12 +162,13 @@ export function updateDiffBoxes(diffMap, changeMap) {
 	}
 
 	//First pass: add, remove, update contents where changed
+	const sortIsUnstable = sorters[selectedSort].unstable;
 	let statusList = [];
 	for(const char in changeMap) {
 		if(changeMap[char] === 0) { //Remove an element
 			dbContainerEl.removeChild(boxElements[char]);
 		} else if(boxElements.hasOwnProperty(char)) { //Update an element
-			setDiffBoxVal(boxElements[char], diffMap[char]);
+			setDiffBoxVal(boxElements[char], diffMap[char], sortIsUnstable);
 			const notInContainer = boxElements[char].parentNode !== dbContainerEl;
 			statusList.push([char, diffMap[char], notInContainer]);
 		} else { //Add an element
@@ -172,13 +187,17 @@ export function updateDiffBoxes(diffMap, changeMap) {
 	for(const [c] of sortedCharList) {
 		if(statusList[statusIndex] === undefined) break;
 		if(statusList[statusIndex][0] === c) { //This is an updated element
-			if(statusList[statusIndex][2] || sorters[selectedSort].unstable) {
+			if(statusList[statusIndex][2] || sortIsUnstable) {
 				//El position needs setting
 				insertBoxAfterChar(lastChar, boxElements[c]);
 			}
 			statusIndex++;
 		}
 		lastChar = c;
+	}
+
+	if(sortIsUnstable) {
+		window.setTimeout(swapQueuedBoxColors, 0);
 	}
 
 	lastMap = diffMap;
