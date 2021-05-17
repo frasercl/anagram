@@ -9,7 +9,7 @@ h2 {
 
 .editor {
 	background-color: lightgray;
-	padding: 25px;
+	padding: 26px;
 	font-size: 20px;
 }
 
@@ -18,6 +18,11 @@ h2 {
 	content: attr(_title);
 	color: #888888;
 	pointer-events: none;
+}
+
+/* Prevents the empty editor from resizing when focused, which it does */
+.editor:empty:focus:before {
+	content: "\00A0";
 }
 
 /* Letters that are unused in the other box */

@@ -54,6 +54,7 @@ function computeDiffMap(m1, m2, keepValue = false) {
 	return diffMap;
 }
 
+//TODO: do we need HE really?
 //TODO: boy, this whole place really has got to be looked at.
 function editorOnInput() {
 	const editorID = parseInt(this.getAttribute("_editor"));
