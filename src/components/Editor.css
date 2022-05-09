@@ -1,0 +1,32 @@
+.ed-container {
+    position: relative;
+    background-color: #ddd;
+    font-size: 20px;
+    line-height: 160%;
+}
+
+.ed-content, .ed-editor {
+    padding: 23px;
+}
+
+.ed-content {
+    position: absolute;
+    pointer-events: none;
+}
+
+.ed-editor {
+    display: block;
+    color: transparent;
+    caret-color: black;
+    z-index: 10;
+}
+
+.ed-editor:empty:not(focus):before {
+    content: attr(placeholder);
+    pointer-events: none;
+    color: #777;
+}
+
+.notword, .notalpha, .matched {
+    color: black;
+}
