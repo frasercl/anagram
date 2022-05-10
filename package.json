@@ -19,6 +19,7 @@
   },
   "scripts": {
     "start": "parcel serve ./src/index.html",
-    "build": "parcel build --no-source-maps ./src/index.html"
+    "build": "parcel build --no-source-maps --public-url ./ ./src/index.html",
+    "deploy": "gh-pages -d dist"
   }
 }
