@@ -1,4 +1,12 @@
+:root {
+    --main-bg-color: white;
+    --content-bg-color: #ddd;
+}
+
 body {
     font-family: Monaco, Menlo, "Ubuntu Mono", Consolas, source-code-pro, monospace;
-    margin: 15px;
+    margin: 0;
+    padding: 15px 30px;
+    background-color: var(--main-bg-color);
+    font-size: 1.2em;
 }

@@ -1,7 +1,6 @@
 .ed-container {
     position: relative;
-    background-color: #ddd;
-    font-size: 20px;
+    background-color: var(--content-bg-color);
     line-height: 160%;
 }
 

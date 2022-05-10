@@ -1,4 +1,4 @@
-import { h, JSX } from "preact";
+import { h } from "preact";
 import { useState } from "preact/hooks";
 import "./Editor.css";
 
@@ -74,6 +74,7 @@ export default function Editor(props: Props) {
   const updateContent = (content: string) => {
     setContent(content);
 
+    // Gather letter frequencies in a map and pass it up
     let map = new Map<string, number>();
     content.split("").forEach(char => {
       if (isLetter(char)) {
@@ -92,8 +93,8 @@ export default function Editor(props: Props) {
   let trackingDiff = new Map(props.diff);
   // Create single-char elements to correctly highlight editor contents, while
   // tracking letter diffs
-  const makeWordContent = (content: string): JSX.Element[] => {
-    let result: JSX.Element[] = [];
+  const makeWordContent = (content: string): h.JSX.Element[] => {
+    let result: h.JSX.Element[] = [];
     content.split("").forEach(char => {
       if (isWordJoiner(char)) {
         result.push(<span class="notalpha">{char}</span>);
@@ -110,7 +111,7 @@ export default function Editor(props: Props) {
     return result;
   }
 
-  let contentEls: (JSX.Element | string)[] = [];
+  let contentEls: (h.JSX.Element | string)[] = [];
   let whitespace = content.split(/\S+/);
   content.split(/\s+/).forEach(chunk => {
     const wsChunk = whitespace.shift();

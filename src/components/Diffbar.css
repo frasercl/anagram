@@ -1,0 +1,21 @@
+.db-container {
+    padding: 8px 0px;
+    min-height: calc(1em + 13px);
+    line-height: calc(1em + 13px);
+}
+
+.db-box {
+    padding: 3px 0px;
+    background-color: var(--content-bg-color);
+    transition: background-color 0.2s linear;
+    margin-right: 3px;
+}
+
+.db-char {
+    background-color: rgba(128, 128, 128, 0.7);
+    padding: 3px 7px;
+}
+
+.db-char, .db-arrow, .db-val {
+    margin-right: 7px;
+}
