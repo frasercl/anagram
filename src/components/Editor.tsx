@@ -30,7 +30,7 @@ function Editable(props: EditableProps) {
     const el = e.target as Element;
     // Don't allow the browser to add any html!
     if (el.children.length > 0) {
-      // Find and save the caret index
+      // Find and save the position of the caret
       let range = window.getSelection()!.getRangeAt(0);
       let iRange = range.cloneRange();
       iRange.selectNodeContents(el);
@@ -39,7 +39,7 @@ function Editable(props: EditableProps) {
 
       el.textContent = el.textContent;
 
-      // Restore the caret index
+      // Restore the position of the caret
       range.setEnd(el.firstChild!, pos);
       range.collapse();
     }
@@ -78,11 +78,12 @@ export default function Editor(props: Props) {
     let map = new Map<string, number>();
     content.split("").forEach(char => {
       if (isLetter(char)) {
-        const lVal = map.get(char);
+        const charLower = char.toLowerCase();
+        const lVal = map.get(charLower);
         if (typeof lVal === "undefined") {
-          map.set(char, 1);
+          map.set(charLower, 1);
         } else {
-          map.set(char, lVal + 1);
+          map.set(charLower, lVal + 1);
         }
       }
     });

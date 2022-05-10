@@ -19,3 +19,44 @@
 .db-char, .db-arrow, .db-val {
     margin-right: 7px;
 }
+
+/* DIFFBOX SORT MENU */
+
+.db-menu {
+    position: relative;
+    margin-right: 3px;
+    padding: 3px 7px;
+    background-color: var(--select-bg-color);
+    cursor: default;
+}
+
+.db-menu:hover {
+    border-bottom: 3px solid var(--select-bg-color);
+}
+
+.db-menu:hover, .db-menu:hover > .db-menu-content {
+    box-shadow: 2px 2px rgba(128, 128, 128, 0.4);
+}
+
+.db-menu-content {
+    position: absolute;
+    top: calc(1em + 13px);
+    z-index: 20;
+    background-color: var(--select-bg-color);
+}
+
+.db-menu:not(:hover) > .db-menu-content {
+    display: none;
+}
+
+.db-menu-option {
+    padding: 0px 7px;
+}
+
+.db-menu-option:hover {
+    background-color: var(--hover-bg-color);
+}
+
+.db-sel {
+    background-color: var(--content-bg-color) !important;
+}

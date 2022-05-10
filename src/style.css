@@ -1,6 +1,8 @@
 :root {
     --main-bg-color: white;
     --content-bg-color: #ddd;
+    --hover-bg-color: #bbb;
+    --select-bg-color: #999;
 }
 
 body {
