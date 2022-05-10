@@ -5,20 +5,20 @@
   "version": "1.0.0",
   "description": "A web-based anagram writer tool",
   "license": "ISC",
-  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/frasercl/anagram.git"
   },
   "dependencies": {
-    "html-entities": "^2.3.3",
     "preact": "^10.7.2"
   },
   "devDependencies": {
+    "gh-pages": "^3.2.3",
     "parcel": "^2.5.0",
     "typescript": "^4.6.4"
   },
   "scripts": {
-    "start": "parcel src/index.html"
+    "start": "parcel serve ./src/index.html",
+    "build": "parcel build --no-source-maps ./src/index.html"
   }
 }

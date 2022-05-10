@@ -1,121 +1,14 @@
+:root {
+    --main-bg-color: white;
+    --content-bg-color: #ddd;
+    --hover-bg-color: #bbb;
+    --select-bg-color: #999;
+}
+
 body {
-	/*margin: 0;*/
-	font-family: Monaco, Menlo, "Ubuntu Mono", Consolas, source-code-pro, monospace;
-}
-
-h2 {
-	margin-left: 20px;
-}
-
-.editor {
-	background-color: lightgray;
-	padding: 26px;
-	font-size: 20px;
-}
-
-/* from https://til.hashrocket.com/posts/a2cdb1ac8e-create-a-placeholder-for-content-editable-divs */
-.editor:empty:not(:focus):before {
-	content: attr(_title);
-	color: #888888;
-	pointer-events: none;
-}
-
-/* Prevents the empty editor from resizing when focused, which it does */
-.editor:empty:focus:before {
-	content: "\00A0";
-}
-
-/* Letters that are unused in the other box */
-.l0.lu {
-	color: #ff0000;
-}
-
-.l1.lu {
-	color: #0051ff;
-}
-
-/* THE MIDBAR: elements that live between the editors */
-
-#midbar {
-	padding: 8px 0px;
-	line-height: 31px;
-	font-size: 20px;
-}
-
-#midbar.msg > span {
-	display: none;
-}
-
-#midbar.msg:before {
-	display: block;
-}
-
-#midbar.msg.msg-empty:before {
-	content: "Whoa it's a secret message!";
-	color: white;
-	background-color: white;
-}
-
-#midbar.msg.msg-anagram:before {
-	content: "That's an anagram!";
-	text-align: center;
-	background-color: #2ecc71;
-}
-
-#diffbox-sort, .db {
-	line-height: normal;
-	display: inline-block;
-	margin-right: 3px;
-}
-
-#diffbox-sort {
-	background-color: #888888;
-	padding: 3px 5px;
-	user-select: none;
-}
-
-#diffbox-sort:hover:before, #diffbox-sort.holdopen:before {
-	content: "sort:";
-}
-
-#diffbox-sort:not(:hover, .holdopen):before {
-	content: "...";
-}
-
-#diffbox-sort.holdopen {
-	background-color: #707070;
-}
-
-.db-sort-option {
-	display: none;
-	padding: 3px 7px;
-	cursor: default;
-	transition: background-color 0.1s linear;
-}
-
-#diffbox-sort:hover > .db-sort-option, #diffbox-sort.holdopen > .db-sort-option {
-	display: inline;
-}
-
-.db-sort-option:hover {
-	background-color:#a8a8a8;
-}
-
-.db-sort-selected {
-	background-color: lightgray !important;
-}
-
-.db {
-	padding: 3px 0px;
-	background-color: #d0d0d0;
-	transition: background-color 0.2s linear;
-}
-
-.db > span {
-	margin-right: 7px;
-}
-
-.db-char {
-	background-color: rgba(128, 128, 128, 0.7);
-	padding: 3px 7px;
+    font-family: Monaco, Menlo, "Ubuntu Mono", Consolas, source-code-pro, monospace;
+    margin: 0;
+    padding: 15px 30px;
+    background-color: var(--main-bg-color);
+    font-size: 1.2em;
 }
