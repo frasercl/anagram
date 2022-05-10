@@ -20,6 +20,11 @@
     margin-right: 7px;
 }
 
+.db-msg {
+	text-align: center;
+	background-color: #2ecc71;
+}
+
 /* DIFFBOX SORT MENU */
 
 .db-menu {

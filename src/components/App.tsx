@@ -34,7 +34,7 @@ export default function App() {
         updateMap={setMap0}
         diff={map1}
       />
-      <Diffbar diff={diff} />
+      <Diffbar diff={diff} hasContent={map0.size > 0}/>
       <Editor
         placeholder="Or you can type stuff here!"
         color="#0051ff"

@@ -44,16 +44,26 @@ const SORT_FUNCS: ((a: [string, number], b: [string, number]) => number)[] = [
   }
 ];
 
-export default function Diffbar(props: {diff: Map<string, number>}) {
+type Props = {diff: Map<string, number>, hasContent: boolean};
+
+export default function Diffbar(props: Props) {
   let [sort, setSort] = useState(0);
+
+  if (props.diff.size === 0) {
+    if (props.hasContent) {
+      return (
+        <div class="db-container">
+          <div class="db-msg">That's an anagram!</div>
+        </div>
+      );
+    } else {
+      return <div class="db-container" />;
+    }
+  }
 
   let els: h.JSX.Element[] = [];
   for (const [char, val] of [...props.diff.entries()].sort(SORT_FUNCS[sort])) {
     els.push(<Diffbox char={char} val={val} />);
-  }
-
-  if (els.length === 0) {
-    return <div class="db-container"></div>
   }
 
   const sortClass =
