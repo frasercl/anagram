@@ -12,14 +12,14 @@ const DOWN = "\u25BC";
 const UP = "\u25B2";
 
 function Diffbox(props: {char: string, val: number}) {
-	const targetEditor = props.val < 0 ? 1 : 0;
-	const mult = Math.min(Math.abs(props.val), DIFF_MAX_COLOR) / DIFF_MAX_COLOR;
+  const targetEditor = props.val < 0 ? 1 : 0;
+  const mult = Math.min(Math.abs(props.val), DIFF_MAX_COLOR) / DIFF_MAX_COLOR;
   let color = [0, 0, 0];
-	for(const [i, b] of DIFF_TARGET_BLANK.entries()) {
-		const chanRange = DIFF_TARGET[targetEditor][i] - b;
-		const chanVal = b + chanRange * mult;
+  for(const [i, b] of DIFF_TARGET_BLANK.entries()) {
+    const chanRange = DIFF_TARGET[targetEditor][i] - b;
+    const chanVal = b + chanRange * mult;
     color[i] = chanVal;
-	}
+  }
   const style = `background-color: rgb(${color[0]}, ${color[1]}, ${color[2]})`;
 
   return (
@@ -33,7 +33,7 @@ function Diffbox(props: {char: string, val: number}) {
 
 const SORT_FUNCS: ((a: [string, number], b: [string, number]) => number)[] = [
   // default
-  (a, b) => 1,
+  (_a, _b) => 1,
   // frequency
   ([_a, a], [_b, b]) => b - a,
   // alphabetical
