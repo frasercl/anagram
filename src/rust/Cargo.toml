@@ -1,0 +1,18 @@
+[package]
+name = "anagram"
+version = "0.1.0"
+authors = ["Cameron Fraser"]
+categories = ["wasm"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+wasm-bindgen = "0.2.80"
+wee_alloc = { version = "0.4.5", optional = true }
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+# default = ["wee_alloc"]
